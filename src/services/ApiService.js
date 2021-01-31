@@ -1,7 +1,8 @@
 import axios from '../../node_modules/axios'
+import settings from '../settings'
 
 const api = axios.create({
-    baseURL: 'http://161.97.179.116:5006/api'
+    baseURL: settings.baseURL// 'http://161.97.179.116:5006/api'
     // baseURL: 'https://localhost:44352/api'
 })
 
