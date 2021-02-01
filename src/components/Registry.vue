@@ -6,12 +6,14 @@
           <v-tab v-for="ageGroup in ageGroups" :key="ageGroup.id">{{ ageGroup.name }}</v-tab>
         </v-tabs>
         <v-data-table
+          v-model="tableModel"
           :headers="headers"
           :items="trainings"
+          item-key="id"
         >
           <template v-slot:item.register="{ item }">
             <v-btn icon>
-              <v-icon @click="register(item)">
+              <v-icon @click="register(item)" :disabled="item.availableSpaces <= 0 ">
                 mdi-rugby
               </v-icon>
             </v-btn>
@@ -69,6 +71,8 @@
     },
     methods: {
       register(training){
+        this.tableModel.length = 0
+        this.tableModel.push(training)
         this.selectedTraining = Object.assign({}, training)
       },
 
@@ -81,6 +85,7 @@
       getAgeGroups(){
         this.$api.getAgeGroups()
           .then(resp => this.ageGroups = resp.data)
+          .then(() => this.getTrainings())
       },
       postRegistry(){
         this.$refs.form.validate()
@@ -142,11 +147,11 @@
       rules: {
         required: value => !!value || "Verplicht veld"
       },
-      valid: false
+      valid: false,
+      tableModel: []
     }),
     mounted() {
       this.getAgeGroups()
-      this.getTrainings()
     }
   }
 </script>

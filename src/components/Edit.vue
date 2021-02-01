@@ -69,6 +69,7 @@
       getAgeGroups(){
         this.$api.getAgeGroups()
           .then(resp => this.ageGroups = resp.data)
+          .then(() => this.getTrainings())
       },
       postNewTrainings(){
         this.loading = true
@@ -120,7 +121,6 @@
     }),
     mounted() {
       this.getAgeGroups()
-      this.getTrainings()
     }
   }
 </script>
