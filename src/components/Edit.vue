@@ -9,12 +9,21 @@
           :headers="headers"
           :items="trainings"
           item-key="id"
+          @click:row="showRegistries"
         >
         </v-data-table>
       </v-card-text>
-      <v-card-actions>
-        
-      </v-card-actions>
+    </v-card>
+    <v-card v-if="registries.length > 0">
+      <v-card-title>
+        Aanwezigheden
+      </v-card-title>
+      <v-card-text>
+        <v-row v-for="trainingRegistry in registries" :key="trainingRegistry.id">
+          <v-col cols="3">{{ trainingRegistry.name }}</v-col>
+          <v-col cols="9">{{ trainingRegistry.remark }}</v-col>
+        </v-row>
+      </v-card-text>
     </v-card>
     <v-row>
       <v-col cols="3">
@@ -79,6 +88,10 @@
             this.getTrainings()
           })
           .finally(() => this.loading = false)
+      },
+      showRegistries(item){
+        this.$api.getRegistries(item.id)
+          .then(resp => this.registries = resp.data)
       }
     },
 
@@ -117,7 +130,8 @@
       
       startTimeMenu: null,
       endTimeMenu: null,
-      loading: false
+      loading: false,
+      registries: []
     }),
     mounted() {
       this.getAgeGroups()

@@ -26,6 +26,13 @@ export default{
             }
         })
     },
+    getRegistries(trainingId){
+        return api.get('training/registries', {
+            params: {
+                trainingId
+            }
+        })
+    },
 
     //POST
     postRegistry(registry){
