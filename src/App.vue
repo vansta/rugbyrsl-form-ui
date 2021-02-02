@@ -6,16 +6,16 @@
       dark
     >
       <div class="d-flex align-center">
-        <!-- <v-img
+        <v-img
           alt="Vuetify Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          :src="logo"
           transition="scale-transition"
-          width="40"
+          width="100"
         />
 
-        <v-img
+        <!-- <v-img
           alt="Vuetify Name"
           class="shrink mt-1 hidden-sm-and-down"
           contain
@@ -23,7 +23,7 @@
           src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
           width="100"
         /> -->
-        Rugby RSL
+        
       </div>
     </v-app-bar>
     <div>
@@ -43,6 +43,7 @@ export default {
 
   data: () => ({
     //
+    logo: require("./assets/logo.svg")
   }),
 };
 </script>
