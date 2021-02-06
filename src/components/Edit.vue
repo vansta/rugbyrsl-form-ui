@@ -11,6 +11,13 @@
           item-key="id"
           @click:row="showRegistries"
         >
+          <template v-slot:item.delete="{ item }">
+            <v-btn icon @click.stop="confirmDelete(item)">
+              <v-icon>
+                mdi-delete
+              </v-icon>
+            </v-btn>
+          </template>
         </v-data-table>
       </v-card-text>
     </v-card>
@@ -52,6 +59,24 @@
       </v-col>
     </v-row>
     <v-btn block color="primary" @click="postNewTrainings" :loading="loading">Trainingen toevoegen</v-btn>
+
+    <v-dialog v-model="dialog">
+      <v-card>
+        <v-card-title>
+          Ben je zeker dat je deze training wil verwijderen?
+        </v-card-title>
+        <v-card-actions>
+          <v-row>
+            <v-col>
+              <v-btn block color="secondary" @click="deleteTraining">Verwijderen</v-btn>
+            </v-col>
+            <v-col>
+              <v-btn block color="primary" @click="dialog = false">Annuleren</v-btn>
+            </v-col>
+          </v-row>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
     
   </v-container>
   
@@ -95,6 +120,15 @@
       showRegistries(item){
         this.$api.getRegistries(item.id)
           .then(resp => this.registries = resp.data)
+      },
+      confirmDelete(item){
+        this.dialog = true
+        this.editTraining = Object.assign({}, item)
+      },
+      deleteTraining(){
+        this.dialog = false
+        this.$api.deleteTraining(this.editTraining.id)
+          .then(() => this.getTrainings())
       }
     },
 
@@ -119,6 +153,10 @@
         {
           text: "Beschikbare plaatsen",
           value: "availableSpaces"
+        },
+        {
+          text: "Verwijderen",
+          value: "delete"
         }
       ],
       trainings: [],
@@ -135,7 +173,9 @@
       startTimeMenu: null,
       endTimeMenu: null,
       loading: false,
-      registries: []
+      registries: [],
+      dialog: false,
+      editTraining: {}
     }),
     mounted() {
       this.getAgeGroups()

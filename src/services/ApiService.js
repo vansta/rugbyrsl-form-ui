@@ -38,5 +38,14 @@ export default{
     },
     postNewTrainings(newTrainings){
         return api.post('training/newtraining', newTrainings)
+    },
+
+    //DELETE
+    deleteTraining(trainingId){
+        return api.delete('training', {
+            params: {
+                trainingId
+            }
+        })
     }
 }
