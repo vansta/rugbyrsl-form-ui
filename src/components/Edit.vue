@@ -26,7 +26,7 @@
       </v-card-text>
     </v-card>
     <v-row>
-      <v-col cols="3">
+      <v-col cols="4" sm="2">
         <v-menu v-model="startTimeMenu" :close-on-content-click="false">
           <template v-slot:activator="{ on }">
             <v-text-field v-on="on" v-model="newTrainingsModel.startTime" readonly label="Start uur"></v-text-field>
@@ -35,7 +35,7 @@
         </v-menu>
         
       </v-col>
-      <v-col cols="3">
+      <v-col cols="4" sm="2">
         <v-menu v-model="endTimeMenu" :close-on-content-click="false">
           <template v-slot:activator="{ on }">
             <v-text-field v-on="on" v-model="newTrainingsModel.endTime" readonly label="Eind uur"></v-text-field>
@@ -44,7 +44,10 @@
         </v-menu>
         
       </v-col>
-      <v-col cols="6">
+      <v-col cols="4" sm="2">
+        <v-text-field type="number" v-model="newTrainingsModel.maxRegistries" :value="10" label="Maximum spelers"></v-text-field>
+      </v-col>
+      <v-col cols="12" sm="6">
         <v-date-picker full-width multiple v-model="newTrainingsModel.dates"></v-date-picker>
       </v-col>
     </v-row>
@@ -126,6 +129,7 @@
         dates: [],
         startTime: null,
         endTime: null,
+        maxRegistries: 10
       },
       
       startTimeMenu: null,
