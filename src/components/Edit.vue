@@ -1,5 +1,8 @@
 <template>
-  <v-container class="mt-16">
+  <v-container>
+    <v-snackbar v-model="snackbar.open" top :color="snackbar.type">
+      {{ snackbar.text }}
+    </v-snackbar>
     <v-card>
       <v-card-text>
         <v-tabs grow v-model="selectedAgeGroupIndex" dark @change="getTrainings" show-arrows center-active>
@@ -32,33 +35,36 @@
         </v-row>
       </v-card-text>
     </v-card>
-    <v-row>
-      <v-col cols="4" sm="2">
-        <v-menu v-model="startTimeMenu" :close-on-content-click="false">
-          <template v-slot:activator="{ on }">
-            <v-text-field v-on="on" v-model="newTrainingsModel.startTime" readonly label="Start uur"></v-text-field>
-          </template>
-          <v-time-picker format="24hr" v-model="newTrainingsModel.startTime"></v-time-picker>
-        </v-menu>
-        
-      </v-col>
-      <v-col cols="4" sm="2">
-        <v-menu v-model="endTimeMenu" :close-on-content-click="false">
-          <template v-slot:activator="{ on }">
-            <v-text-field v-on="on" v-model="newTrainingsModel.endTime" readonly label="Eind uur"></v-text-field>
-          </template>
-          <v-time-picker format="24hr" v-model="newTrainingsModel.endTime"></v-time-picker>
-        </v-menu>
-        
-      </v-col>
-      <v-col cols="4" sm="2">
-        <v-text-field type="number" v-model="newTrainingsModel.maxRegistries" :value="10" label="Maximum spelers"></v-text-field>
-      </v-col>
-      <v-col cols="12" sm="6">
-        <v-date-picker full-width multiple v-model="newTrainingsModel.dates"></v-date-picker>
-      </v-col>
-    </v-row>
-    <v-btn block color="primary" @click="postNewTrainings" :loading="loading">Trainingen toevoegen</v-btn>
+    <v-form v-model="valid">
+      <v-row>
+        <v-col cols="4" sm="2">
+          <v-menu v-model="startTimeMenu" :close-on-content-click="false">
+            <template v-slot:activator="{ on }">
+              <v-text-field v-on="on" v-model="newTrainingsModel.startTime" readonly label="Start uur" :rules="[rules.required]"></v-text-field>
+            </template>
+            <v-time-picker format="24hr" v-model="newTrainingsModel.startTime"></v-time-picker>
+          </v-menu>
+          
+        </v-col>
+        <v-col cols="4" sm="2">
+          <v-menu v-model="endTimeMenu" :close-on-content-click="false">
+            <template v-slot:activator="{ on }">
+              <v-text-field v-on="on" v-model="newTrainingsModel.endTime" readonly label="Eind uur" :rules="[rules.required]"></v-text-field>
+            </template>
+            <v-time-picker format="24hr" v-model="newTrainingsModel.endTime"></v-time-picker>
+          </v-menu>
+          
+        </v-col>
+        <v-col cols="4" sm="2">
+          <v-text-field type="number" v-model="newTrainingsModel.maxRegistries" :value="10" label="Maximum spelers"></v-text-field>
+        </v-col>
+        <v-col cols="12" sm="6">
+          <v-date-picker full-width multiple v-model="newTrainingsModel.dates"></v-date-picker>
+        </v-col>
+      </v-row>
+    </v-form>
+    
+    <v-btn block color="primary" @click="postNewTrainings" :loading="loading" :disabled="!valid">Trainingen toevoegen</v-btn>
 
     <v-dialog v-model="dialog">
       <v-card>
@@ -113,8 +119,10 @@
         this.newTrainingsModel.ageGroupId = this.selectedAgeGroupId
         this.$api.postNewTrainings(this.newTrainingsModel)
           .then(() => {
+            this.snackbar = { open: true, type: "success", text: "Trainings have been added" }
             this.getTrainings()
           })
+          .catch(() => this.snackbar = { open: true, type: "error", text: "Training could not be added" })
           .finally(() => this.loading = false)
       },
       showRegistries(item){
@@ -128,11 +136,20 @@
       deleteTraining(){
         this.dialog = false
         this.$api.deleteTraining(this.editTraining.id)
-          .then(() => this.getTrainings())
+        .then(() => {
+          this.snackbar = { open: true, type: "success", text: "Training has been removed" }
+          this.getTrainings()
+        })
+        .catch(() => this.snackbar = { open: true, type: "error", text: "Training could not be removed" })
       }
     },
 
     data: () => ({
+      snackbar: {
+        open: true,
+        type: "secondary",
+        text: "Deze pagina is voor trainers! Ben je geen trainer, dan vind je alles op de homepagina"
+      },
       headers: [
         {
           text: "Groep",
@@ -162,7 +179,6 @@
       trainings: [],
       ageGroups: [],
       selectedAgeGroupIndex: 0,
-      snackbar: {},
       newTrainingsModel: {
         dates: [],
         startTime: null,
@@ -175,7 +191,11 @@
       loading: false,
       registries: [],
       dialog: false,
-      editTraining: {}
+      editTraining: {},
+      rules: {
+        required: value => !!value || "Verplicht veld"
+      },
+      valid: false
     }),
     mounted() {
       this.getAgeGroups()
