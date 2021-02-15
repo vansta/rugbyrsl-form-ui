@@ -2,7 +2,7 @@
   <v-container class="mt-16">
     <v-card>
       <v-card-text>
-        <v-tabs grow v-model="selectedAgeGroupIndex" dark @change="getTrainings">
+        <v-tabs grow v-model="selectedAgeGroupIndex" dark @change="getTrainings" show-arrows center-active>
           <v-tab v-for="ageGroup in ageGroups" :key="ageGroup.id">{{ ageGroup.name }}</v-tab>
         </v-tabs>
         <v-data-table
@@ -10,10 +10,11 @@
           :headers="headers"
           :items="trainings"
           item-key="id"
+          @click:row="register"
         >
           <template v-slot:item.register="{ item }">
-            <v-btn icon>
-              <v-icon @click="register(item)" :disabled="item.availableSpaces <= 0 ">
+            <v-btn icon depressed>
+              <v-icon @click="register(item)" :disabled="item.availableSpaces <= 0 " large>
                 mdi-rugby
               </v-icon>
             </v-btn>
@@ -22,11 +23,12 @@
       </v-card-text>
     </v-card>
     
-    <v-card v-if="trainingSelected">
-      <v-card-text>
-        <span class="text-h5">
+    <v-dialog v-model="registerDialog">
+      <v-card>
+        <v-card-title class="text-uppercase">
           {{ selectedTraining.dateString }}
-        </span>
+        </v-card-title>
+      <v-card-text>
         <v-form v-model="valid" ref="form">
           <v-row>
             <v-col cols="12">
@@ -45,8 +47,9 @@
       </v-card-text>
       
     </v-card>
+    </v-dialog>
     
-    <v-snackbar v-model="snackbar.on" :color="snackbar.color">
+    <v-snackbar v-model="snackbar.on" :color="snackbar.color" timeout="5000">
       {{ snackbar.message }}
     </v-snackbar>
   </v-container>
@@ -69,15 +72,19 @@
         return Object.keys(this.selectedTraining).length !== 0
       }
     },
+    watch: {
+      selectedTraining: {
+        handler() {
+          this.registerDialog = Object.keys(this.selectedTraining).length > 0
+        }
+      }
+    },
     methods: {
       register(training){
         this.tableModel.length = 0
         this.tableModel.push(training)
         this.selectedTraining = Object.assign({}, training)
       },
-
-
-
       getTrainings(){
         this.$api.getTrainings(this.selectedAgeGroupId)
           .then(resp => this.trainings = resp.data)
@@ -98,6 +105,7 @@
                 color: 'success',
                 message: resp.data
               }
+              this.registerDialog = false
               this.getTrainings()
             })
             .catch(err => {
@@ -148,7 +156,7 @@
         required: value => !!value || "Verplicht veld"
       },
       valid: false,
-      tableModel: []
+      registerDialog: false
     }),
     mounted() {
       this.getAgeGroups()

@@ -2,7 +2,7 @@
   <v-container class="mt-16">
     <v-card>
       <v-card-text>
-        <v-tabs grow v-model="selectedAgeGroupIndex" dark @change="getTrainings">
+        <v-tabs grow v-model="selectedAgeGroupIndex" dark @change="getTrainings" show-arrows center-active>
           <v-tab v-for="ageGroup in ageGroups" :key="ageGroup.id">{{ ageGroup.name }}</v-tab>
         </v-tabs>
         <v-data-table
