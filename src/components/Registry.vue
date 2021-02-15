@@ -1,11 +1,12 @@
 <template>
-  <v-container class="mt-16">
+  <v-container>
     <v-card>
       <v-card-text>
         <v-tabs grow v-model="selectedAgeGroupIndex" dark @change="initAgeGroup" show-arrows center-active>
           <v-tab v-for="ageGroup in ageGroups" :key="ageGroup.id">{{ ageGroup.name }}</v-tab>
         </v-tabs>
         <v-data-table
+          :loading="tableLoading"
           :headers="headers"
           :items="trainings"
           item-key="id"
@@ -49,7 +50,7 @@
     </v-card>
     </v-dialog>
     
-    <v-snackbar v-model="snackbar.on" :color="snackbar.color" timeout="5000">
+    <v-snackbar v-model="snackbar.on" :color="snackbar.color" timeout="5000" top>
       {{ snackbar.message }}
     </v-snackbar>
   </v-container>
@@ -89,8 +90,10 @@
         this.selectedTraining = Object.assign({}, training)
       },
       getTrainings(){
+        this.tableLoading = true
         this.$api.getTrainings(this.selectedAgeGroupId)
           .then(resp => this.trainings = resp.data)
+          .finally(() => this.tableLoading = false)
       },
       getPlayers() {
         this.$api.getPlayers(this.selectedAgeGroupId)
@@ -167,7 +170,8 @@
       valid: false,
       registerDialog: false,
       players: [],
-      registerLoading: false
+      registerLoading: false,
+      tableLoading: false
     }),
     mounted() {
       this.getAgeGroups()
