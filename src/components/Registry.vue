@@ -6,7 +6,6 @@
           <v-tab v-for="ageGroup in ageGroups" :key="ageGroup.id">{{ ageGroup.name }}</v-tab>
         </v-tabs>
         <v-data-table
-          v-model="tableModel"
           :headers="headers"
           :items="trainings"
           item-key="id"
@@ -81,8 +80,7 @@
     },
     methods: {
       register(training){
-        this.tableModel.length = 0
-        this.tableModel.push(training)
+        if (training.availableSpaces > 0)
         this.selectedTraining = Object.assign({}, training)
       },
       getTrainings(){

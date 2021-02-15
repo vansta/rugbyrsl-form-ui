@@ -40,6 +40,9 @@ export default {
 
   components: {
   },
+  created() {
+    document.title = 'Rugby RSL Covid registratie'
+  },
 
   data: () => ({
     //
