@@ -11,6 +11,10 @@
           :items="trainings"
           item-key="id"
           @click:row="register"
+          @item-expanded="getRegistrations"
+          show-expand
+          single-expand
+          :expanded.sync="expanded"
         >
           <template v-slot:item.register="{ item }">
             <v-btn icon depressed>
@@ -18,6 +22,19 @@
                 mdi-rugby
               </v-icon>
             </v-btn>
+          </template>
+          <template v-slot:expanded-item="{ headers }">
+            <td :colspan="headers.length">
+              <v-row v-for="registration in registrationsForExpanded" :key="registration.id" dense>
+                <v-col cols="6" md="4" class="text-overline text-break font-weight-bold">
+                  {{ registration.name }}
+                </v-col>
+                <v-col cols="6" md="8" class="text-body2 text-capitalize text-break">
+                  {{ registration.remark }}
+                </v-col>
+              </v-row>
+            </td> 
+            
           </template>
         </v-data-table>
       </v-card-text>
@@ -128,6 +145,12 @@
             })
             .finally(() => this.registerLoading = false)
         }
+      },
+      getRegistrations(expanded){
+        if (expanded.value) {
+          this.$api.getRegistries(expanded.item.id)
+            .then(resp => this.registrationsForExpanded = resp.data)
+        }
       }
     },
 
@@ -171,7 +194,9 @@
       registerDialog: false,
       players: [],
       registerLoading: false,
-      tableLoading: false
+      tableLoading: false,
+      expanded: [],
+      registrationsForExpanded: []
     }),
     mounted() {
       this.getAgeGroups()
