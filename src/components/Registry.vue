@@ -14,7 +14,6 @@
           @item-expanded="getRegistrations"
           show-expand
           single-expand
-          :expanded.sync="expanded"
         >
           <template v-slot:item.register="{ item }">
             <v-btn icon depressed>
@@ -33,8 +32,7 @@
                   {{ registration.remark }}
                 </v-col>
               </v-row>
-            </td> 
-            
+            </td>
           </template>
         </v-data-table>
       </v-card-text>
@@ -195,7 +193,6 @@
       players: [],
       registerLoading: false,
       tableLoading: false,
-      expanded: [],
       registrationsForExpanded: []
     }),
     mounted() {

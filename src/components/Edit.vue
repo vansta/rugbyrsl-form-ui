@@ -12,7 +12,9 @@
           :headers="headers"
           :items="trainings"
           item-key="id"
-          @click:row="showRegistries"
+          @item-expanded="showRegistries"
+          show-expand
+          single-expand
         >
           <template v-slot:item.delete="{ item }">
             <v-btn icon @click.stop="confirmDelete(item)">
@@ -21,10 +23,22 @@
               </v-icon>
             </v-btn>
           </template>
+          <template v-slot:expanded-item="{ headers }">
+            <td :colspan="headers.length">
+              <v-row v-for="registration in registries" :key="registration.id" dense>
+                <v-col cols="6" md="4" class="text-overline text-break font-weight-bold">
+                  {{ registration.name }}
+                </v-col>
+                <v-col cols="6" md="8" class="text-body2 text-capitalize text-break">
+                  {{ registration.remark }}
+                </v-col>
+              </v-row>
+            </td>
+          </template>
         </v-data-table>
       </v-card-text>
     </v-card>
-    <v-card v-if="registries.length > 0">
+    <!-- <v-card v-if="registries.length > 0">
       <v-card-title>
         Aanwezigheden
       </v-card-title>
@@ -34,7 +48,7 @@
           <v-col cols="9">{{ trainingRegistry.remark }}</v-col>
         </v-row>
       </v-card-text>
-    </v-card>
+    </v-card> -->
     <v-form v-model="valid">
       <v-row>
         <v-col cols="4" sm="2">
@@ -125,9 +139,11 @@
           .catch(() => this.snackbar = { open: true, type: "error", text: "Training could not be added" })
           .finally(() => this.loading = false)
       },
-      showRegistries(item){
-        this.$api.getRegistries(item.id)
-          .then(resp => this.registries = resp.data)
+      showRegistries(expanded){
+        if (expanded.value) {
+          this.$api.getRegistries(expanded.item.id)
+            .then(resp => this.registries = resp.data)
+        }
       },
       confirmDelete(item){
         this.dialog = true
