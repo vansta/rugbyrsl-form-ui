@@ -15,6 +15,8 @@
           @item-expanded="showRegistries"
           show-expand
           single-expand
+          :custom-sort="customSort"
+          sort-by="dateString"
         >
           <template v-slot:item.delete="{ item }">
             <v-btn icon @click.stop="deleteTraining(item)">
@@ -27,20 +29,19 @@
             <td :colspan="headers.length" class="grey lighten-3">
               <v-card v-for="registration in registries" :key="registration.id" class="my-2 px-2">
                 <v-row dense>
-                <v-col cols="5" md="4" class="text-overline text-break font-weight-bold">
-                  {{ registration.name }}
-                </v-col>
-                <v-col cols="5" md="7" class="text-body2 text-capitalize text-break">
-                  {{ registration.remark }}
-                </v-col>
-                <v-col cols="2" md="1">
-                  <v-btn icon @click="deleteRegistry(registration, item)">
-                    <v-icon>mdi-delete</v-icon>
-                  </v-btn>
-                </v-col>
-              </v-row>
+                  <v-col cols="5" md="4" class="text-overline text-break font-weight-bold">
+                    {{ registration.name }}
+                  </v-col>
+                  <v-col cols="5" md="7" class="text-body2 text-capitalize text-break">
+                    {{ registration.remark }}
+                  </v-col>
+                  <v-col cols="2" md="1">
+                    <v-btn icon @click="deleteRegistry(registration, item)">
+                      <v-icon>mdi-delete</v-icon>
+                    </v-btn>
+                  </v-col>
+                </v-row>
               </v-card>
-              
             </td>
           </template>
         </v-data-table>
@@ -77,24 +78,6 @@
     
     <v-btn block color="primary" @click="postNewTrainings" :loading="loading" :disabled="!valid">Trainingen toevoegen</v-btn>
 
-    <v-dialog v-model="dialog">
-      <v-card>
-        <v-card-title class="text-break">
-          Ben je zeker dat je deze training wil verwijderen?
-        </v-card-title>
-        <v-card-actions>
-          <v-row>
-            <v-col>
-              <v-btn block color="secondary" @click="deleteTraining">Verwijderen</v-btn>
-            </v-col>
-            <v-col>
-              <v-btn block color="primary" @click="dialog = false">Annuleren</v-btn>
-            </v-col>
-          </v-row>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <confirmation-dialog ref="confirm" />
     
   </v-container>
@@ -102,12 +85,12 @@
 </template>
 
 <script>
-  import ConfirmationDialog from './ConfirmationDialog.vue'
+  import common from '../services/common.js'
 
   export default {
     name: 'Edit',
     components: {
-      ConfirmationDialog
+      ConfirmationDialog: () => import('./ConfirmationDialog.vue')
     },
     computed: {
       selectedAgeGroupId() {
@@ -117,9 +100,6 @@
         else{
           return null
         }
-      },
-      trainingSelected() {
-        return Object.keys(this.selectedTraining).length !== 0
       }
     },
     methods: {
@@ -170,6 +150,9 @@
           })
           .catch(() => this.snackbar = { open: true, type: "error", text: "Registratie kon niet verwijderd worden" })
         }
+      },
+      customSort(items, index, isDesc) {
+        return common.customSort(items, index, isDesc)
       }
     },
 
@@ -219,8 +202,6 @@
       endTimeMenu: null,
       loading: false,
       registries: [],
-      dialog: false,
-      editTraining: {},
       rules: {
         required: value => !!value || "Verplicht veld"
       },

@@ -14,6 +14,8 @@
           @item-expanded="getRegistrations"
           show-expand
           single-expand
+          :custom-sort="customSort"
+          sort-by="dateString"
         >
           <template v-slot:item.register="{ item }">
             <v-btn icon depressed>
@@ -23,15 +25,17 @@
             </v-btn>
           </template>
           <template v-slot:expanded-item="{ headers }">
-            <td :colspan="headers.length">
-              <v-row v-for="registration in registrationsForExpanded" :key="registration.id" dense>
-                <v-col cols="6" md="4" class="text-overline text-break font-weight-bold">
-                  {{ registration.name }}
-                </v-col>
-                <v-col cols="6" md="8" class="text-body2 text-capitalize text-break">
-                  {{ registration.remark }}
-                </v-col>
-              </v-row>
+            <td :colspan="headers.length" class="grey lighten-3">
+              <v-card v-for="registration in registrationsForExpanded" :key="registration.id" class="my-2 px-2">
+                <v-row dense>
+                  <v-col cols="6" md="4" class="text-overline text-break font-weight-bold">
+                    {{ registration.name }}
+                  </v-col>
+                  <v-col cols="6" md="8" class="text-body2 text-capitalize text-break">
+                    {{ registration.remark }}
+                  </v-col>
+                </v-row>
+              </v-card>
             </td>
           </template>
         </v-data-table>
@@ -73,6 +77,8 @@
 </template>
 
 <script>
+  import common from '../services/common'
+
   export default {
     name: 'Trainings',
     computed: {
@@ -149,6 +155,9 @@
           this.$api.getRegistries(expanded.item.id)
             .then(resp => this.registrationsForExpanded = resp.data)
         }
+      },
+      customSort(items, index, isDesc) {
+        return common.customSort(items, index, isDesc)
       }
     },
 
