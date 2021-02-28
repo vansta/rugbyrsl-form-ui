@@ -17,38 +17,35 @@
           single-expand
         >
           <template v-slot:item.delete="{ item }">
-            <v-btn icon @click.stop="confirmDelete(item)">
+            <v-btn icon @click.stop="deleteTraining(item)">
               <v-icon>
                 mdi-delete
               </v-icon>
             </v-btn>
           </template>
-          <template v-slot:expanded-item="{ headers }">
-            <td :colspan="headers.length">
-              <v-row v-for="registration in registries" :key="registration.id" dense>
-                <v-col cols="6" md="4" class="text-overline text-break font-weight-bold">
+          <template v-slot:expanded-item="{ headers, item }">
+            <td :colspan="headers.length" class="grey lighten-3">
+              <v-card v-for="registration in registries" :key="registration.id" class="my-2 px-2">
+                <v-row dense>
+                <v-col cols="5" md="4" class="text-overline text-break font-weight-bold">
                   {{ registration.name }}
                 </v-col>
-                <v-col cols="6" md="8" class="text-body2 text-capitalize text-break">
+                <v-col cols="5" md="7" class="text-body2 text-capitalize text-break">
                   {{ registration.remark }}
                 </v-col>
+                <v-col cols="2" md="1">
+                  <v-btn icon @click="deleteRegistry(registration, item)">
+                    <v-icon>mdi-delete</v-icon>
+                  </v-btn>
+                </v-col>
               </v-row>
+              </v-card>
+              
             </td>
           </template>
         </v-data-table>
       </v-card-text>
     </v-card>
-    <!-- <v-card v-if="registries.length > 0">
-      <v-card-title>
-        Aanwezigheden
-      </v-card-title>
-      <v-card-text>
-        <v-row v-for="trainingRegistry in registries" :key="trainingRegistry.id">
-          <v-col cols="3">{{ trainingRegistry.name }}</v-col>
-          <v-col cols="9">{{ trainingRegistry.remark }}</v-col>
-        </v-row>
-      </v-card-text>
-    </v-card> -->
     <v-form v-model="valid">
       <v-row>
         <v-col cols="4" sm="2">
@@ -82,7 +79,7 @@
 
     <v-dialog v-model="dialog">
       <v-card>
-        <v-card-title>
+        <v-card-title class="text-break">
           Ben je zeker dat je deze training wil verwijderen?
         </v-card-title>
         <v-card-actions>
@@ -97,14 +94,21 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+
+    <confirmation-dialog ref="confirm" />
     
   </v-container>
   
 </template>
 
 <script>
+  import ConfirmationDialog from './ConfirmationDialog.vue'
+
   export default {
     name: 'Edit',
+    components: {
+      ConfirmationDialog
+    },
     computed: {
       selectedAgeGroupId() {
         if (this.ageGroups.length > 0){
@@ -133,10 +137,10 @@
         this.newTrainingsModel.ageGroupId = this.selectedAgeGroupId
         this.$api.postNewTrainings(this.newTrainingsModel)
           .then(() => {
-            this.snackbar = { open: true, type: "success", text: "Trainings have been added" }
+            this.snackbar = { open: true, type: "success", text: "Trainingen zijn aangemaakt" }
             this.getTrainings()
           })
-          .catch(() => this.snackbar = { open: true, type: "error", text: "Training could not be added" })
+          .catch(() => this.snackbar = { open: true, type: "error", text: "Training kon niet aangemaakt worden" })
           .finally(() => this.loading = false)
       },
       showRegistries(expanded){
@@ -145,18 +149,27 @@
             .then(resp => this.registries = resp.data)
         }
       },
-      confirmDelete(item){
-        this.dialog = true
-        this.editTraining = Object.assign({}, item)
-      },
-      deleteTraining(){
-        this.dialog = false
-        this.$api.deleteTraining(this.editTraining.id)
+      async deleteTraining(training){
+        if (await this.$refs.confirm.open("Bevestigen", "Ben je zeker dat je deze training wil verwijderen?")){
+          this.$api.deleteTraining(training.id)
         .then(() => {
-          this.snackbar = { open: true, type: "success", text: "Training has been removed" }
+          this.snackbar = { open: true, type: "success", text: "Training is verwijderd" }
           this.getTrainings()
         })
-        .catch(() => this.snackbar = { open: true, type: "error", text: "Training could not be removed" })
+        .catch(() => this.snackbar = { open: true, type: "error", text: "Training kon niet verwijderd worden" })
+        }
+      },
+      async deleteRegistry(registry, training){
+        if (await this.$refs.confirm.open("Bevestigen", "Ben je zeker dat je de registratie van <span class='text-uppercase font-weight-bold text-break'>" + registry.name + "</span> wil verwijderen?")){
+          this.$api.deleteRegistry(registry.id)
+          .then(() => {
+            this.snackbar = { open: true, type: "success", text: "Registratie is verwijderd" }
+            this.getTrainings()
+            this.$api.getRegistries(training.id)
+              .then(resp => this.registries = resp.data)
+          })
+          .catch(() => this.snackbar = { open: true, type: "error", text: "Registratie kon niet verwijderd worden" })
+        }
       }
     },
 

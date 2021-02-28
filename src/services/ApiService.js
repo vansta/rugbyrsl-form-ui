@@ -47,5 +47,12 @@ export default{
                 trainingId
             }
         })
+    },
+    deleteRegistry(registryId){
+        return api.delete('training/registries', {
+            params: {
+                registryId
+            }
+        })
     }
 }
