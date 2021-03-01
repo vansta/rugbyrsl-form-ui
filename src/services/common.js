@@ -4,17 +4,17 @@ export default {
         items.sort((a, b) => {
             if (index[0]=='dateString') {
               if (!isDesc[0]) {
-                return this.compareDateString(a, b, index)
+                return this.compareDateString(a, b, index) ? 1 : -1
               } else {
-                return this.compareDateString(b, a, index)
+                return this.compareDateString(b, a, index) ? 1 : -1
               }
             }
             else if (index[0] === 'availableSpaces'){
               if (!isDesc[0]) {
-                  return a[index] > b[index];
+                  return a[index] > b[index] ? 1 : -1;
                 }
                 else {
-                    return b[index] > a[index];
+                    return b[index] > a[index] ? 1 : -1;
                 }
             }
             else {
