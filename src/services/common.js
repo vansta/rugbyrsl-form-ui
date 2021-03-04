@@ -4,9 +4,9 @@ export default {
         items.sort((a, b) => {
             if (index[0]=='dateString') {
               if (!isDesc[0]) {
-                return this.compareDateString(a, b, index) ? 1 : -1
+                return this.compareDateString(a, b, index)
               } else {
-                return this.compareDateString(b, a, index) ? 1 : -1
+                return this.compareDateString(b, a, index)
               }
             }
             else if (index[0] === 'availableSpaces'){
@@ -41,11 +41,11 @@ export default {
             return a.startTime.toLowerCase().localeCompare(b.startTime.toLowerCase()) 
           }
           else{
-            return parseInt(splittedDateStringA[1]) > parseInt(splittedDateStringB[1]);
+            return parseInt(splittedDateStringA[1]) > parseInt(splittedDateStringB[1]) ? 1 : -1;
           }
         }
         else{
-          return monthA > monthB
+          return monthA > monthB ? 1 : -1;
         }
       }
 }
